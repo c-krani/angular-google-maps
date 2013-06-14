@@ -181,7 +181,7 @@
       };
       
       this.addMarker = function (lat, lng, icon, infoWindowContent, label, url,
-          thumbnail) {
+          thumbnail, options) {
         
         if (that.findMarker(lat, lng) != null) {
           return;
@@ -190,7 +190,8 @@
         var marker = new google.maps.Marker({
           position: new google.maps.LatLng(lat, lng),
           map: _instance,
-          icon: icon
+          icon: icon,
+          draggable: options.draggable === true
         });
         
         if (label) {
@@ -199,6 +200,12 @@
         
         if (url) {
           
+        }
+    
+        if (options.draggable === true && angular.isFunction(options.dragend_callback)) {
+            google.maps.event.addListener(marker, 'dragend', function(coords) {
+              options.dragend_callback(coords.latLng.lat(), coords.latLng.lng());
+            });
         }
 
         if (infoWindowContent != null) {
@@ -477,7 +484,7 @@
             
             angular.forEach(newValue, function (v, i) {
               if (!_m.hasMarker(v.latitude, v.longitude)) {
-                _m.addMarker(v.latitude, v.longitude, v.icon, v.infoWindow);
+                _m.addMarker(v.latitude, v.longitude, v.icon, v.infoWindow, undefined, undefined, undefined, { draggable: v.draggable, dragend_callback: v.dragend_callback });
               }
             });
             
